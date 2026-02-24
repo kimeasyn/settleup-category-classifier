@@ -1,0 +1,20 @@
+# 모델 파일 (용량이 크므로 git 제외)
+model_final/
+model_onnx/
+model_output/
+
+# 데이터 파일
+*.csv
+*.xlsx
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
