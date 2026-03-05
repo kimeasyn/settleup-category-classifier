@@ -69,6 +69,8 @@ with DAG(
         volume_mounts=[volume_mount],
         namespace="airflow",
         get_logs=True,
+        startup_timeout_seconds=600,
+        is_delete_operator_pod=False,  # 디버깅용, 나중에 True로
     )
 
     train = KubernetesPodOperator(
@@ -80,6 +82,8 @@ with DAG(
         volume_mounts=[volume_mount],
         namespace="airflow",
         get_logs=True,
+        startup_timeout_seconds=600,
+        is_delete_operator_pod=False,
     )
 
     convert = KubernetesPodOperator(
@@ -91,6 +95,8 @@ with DAG(
         volume_mounts=[volume_mount],
         namespace="airflow",
         get_logs=True,
+        startup_timeout_seconds=600,
+        is_delete_operator_pod=False,
     )
 
     extract >> train >> convert
