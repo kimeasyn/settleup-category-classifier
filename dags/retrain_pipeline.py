@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.providers.cncf.kubernetes.operators.pod import KubernetesPodOperator
 from kubernetes.client import models as k8s
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # 공유 볼륨 설정
 volume = k8s.V1Volume(
@@ -57,6 +57,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule=None,
     catchup=False,
+    dagrun_timeout=timedelta(hours=1),
 ) as dag:
 
     extract = KubernetesPodOperator(
