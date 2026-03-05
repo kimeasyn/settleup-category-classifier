@@ -72,6 +72,7 @@ with DAG(
         get_logs=True,
         startup_timeout_seconds=600,
         is_delete_operator_pod=False,  # 디버깅용, 나중에 True로
+        execution_timeout=timedelta(hours=1),
     )
 
     train = KubernetesPodOperator(
@@ -85,6 +86,7 @@ with DAG(
         get_logs=True,
         startup_timeout_seconds=600,
         is_delete_operator_pod=False,
+        execution_timeout=timedelta(hours=1),
     )
 
     convert = KubernetesPodOperator(
@@ -98,6 +100,7 @@ with DAG(
         get_logs=True,
         startup_timeout_seconds=600,
         is_delete_operator_pod=False,
+        execution_timeout=timedelta(hours=1),
     )
 
     extract >> train >> convert
