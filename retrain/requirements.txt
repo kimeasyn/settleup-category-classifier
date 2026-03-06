@@ -1,5 +1,5 @@
 torch
-transformers
+transformers[torch]
 datasets
 scikit-learn
 pandas
@@ -7,3 +7,4 @@ psycopg2-binary
 onnx
 onnxruntime
 onnxscript
+accelerate
