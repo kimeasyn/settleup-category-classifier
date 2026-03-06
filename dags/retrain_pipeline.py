@@ -61,9 +61,9 @@ with DAG(
 ) as dag:
 
     resources = k8s.V1ResourceRequirements(
-        requests={"cpu": "1", "memory": "2Gi"},
-        limits={"cpu": "2", "memory": "4Gi"},
-        )
+        requests={"cpu": "500m", "memory": "2Gi"},
+        limits={"cpu": "2", "memory": "6Gi"},
+    )
 
     extract = KubernetesPodOperator(
         task_id="extract_data",
