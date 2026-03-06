@@ -29,8 +29,8 @@ ID2LABEL = {i: cat for i, cat in enumerate(CATEGORIES)}
 # 기존 모델 accuracy (이것보다 좋아야 채택)
 BASELINE_ACCURACY = float(os.getenv("BASELINE_ACCURACY", "0.93"))
 
-BATCH_SIZE = 8
-EPOCHS = 5
+BATCH_SIZE = 4
+EPOCHS = 3
 LEARNING_RATE = 2e-5
 
 def train():

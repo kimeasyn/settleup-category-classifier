@@ -50,7 +50,7 @@ db_env = [
     ),
 ]
 
-IMAGE = "kimeasyn/retrain-pipeline:v2"
+IMAGE = "kimeasyn/retrain-pipeline:v3"
 
 with DAG(
     dag_id="retrain_pipeline",

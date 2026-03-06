@@ -18,7 +18,10 @@ category-classifier/
 ├── export/
 │   ├── convert_onnx.py       ← PyTorch → ONNX 변환
 │   └── checkdata.py          ← 모델 추론 테스트
-├── serving/                  ← API 서버 (구현 예정)
+├── serving/                  ← FastAPI 서빙 서버
+│   ├── app.py               ← API 서버 (POST /predict, GET /health)
+│   ├── Dockerfile
+│   └── requirements.txt
 ├── model_final/              ← 최종 PyTorch 모델 (git 제외)
 ├── model_onnx/               ← ONNX 모델 (git 제외)
 └── model_output/             ← 학습 체크포인트 (git 제외)
@@ -38,6 +41,55 @@ python training/train.py
 
 # 4. ONNX 변환 (서빙용)
 python export/convert_onnx.py
+```
+
+## 서빙 서버
+
+### 로컬 실행
+
+```bash
+pip install -r serving/requirements.txt
+cd serving && uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+### Docker 실행
+
+```bash
+# 빌드 (프로젝트 루트에서 model_onnx/ 포함하여 빌드)
+docker build -f serving/Dockerfile -t category-classifier .
+
+# 실행
+docker run -p 8000:8000 category-classifier
+```
+
+### API 사용
+
+```bash
+# 헬스체크
+curl http://localhost:8000/health
+
+# 카테고리 분류
+curl -X POST http://localhost:8000/predict \
+  -H "Content-Type: application/json" \
+  -d '{"description": "스타벅스 아메리카노"}'
+```
+
+응답 예시:
+
+```json
+{
+  "description": "스타벅스 아메리카노",
+  "category": "식비",
+  "confidence": 0.9986,
+  "all_categories": {
+    "식비": 0.9986,
+    "교통": 0.0003,
+    "숙박": 0.0004,
+    "관광": 0.0003,
+    "쇼핑": 0.0002,
+    "기타": 0.0002
+  }
+}
 ```
 
 ## 학습 결과
