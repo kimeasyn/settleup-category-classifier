@@ -50,14 +50,14 @@ db_env = [
     ),
 ]
 
-IMAGE = "kimeasyn/retrain-pipeline:v4"
+IMAGE = "kimeasyn/retrain-pipeline:v5"
 
 with DAG(
     dag_id="retrain_pipeline",
     start_date=datetime(2025, 1, 1),
     schedule=None,
     catchup=False,
-    dagrun_timeout=timedelta(hours=1),
+    dagrun_timeout=timedelta(hours=3),
 ) as dag:
 
     resources = k8s.V1ResourceRequirements(
