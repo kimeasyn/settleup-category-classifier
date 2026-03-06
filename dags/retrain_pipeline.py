@@ -60,6 +60,11 @@ with DAG(
     dagrun_timeout=timedelta(hours=1),
 ) as dag:
 
+    resources = k8s.V1ResourceRequirements(
+        requests={"cpu": "1", "memory": "2Gi"},
+        limits={"cpu": "2", "memory": "4Gi"},
+        )
+
     extract = KubernetesPodOperator(
         task_id="extract_data",
         name="extract-data",
@@ -87,6 +92,7 @@ with DAG(
         startup_timeout_seconds=600,
         is_delete_operator_pod=False,
         execution_timeout=timedelta(hours=1),
+        container_resources=resources,
     )
 
     convert = KubernetesPodOperator(
