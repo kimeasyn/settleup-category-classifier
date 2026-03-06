@@ -29,7 +29,7 @@ ID2LABEL = {i: cat for i, cat in enumerate(CATEGORIES)}
 # 기존 모델 accuracy (이것보다 좋아야 채택)
 BASELINE_ACCURACY = float(os.getenv("BASELINE_ACCURACY", "0.93"))
 
-BATCH_SIZE = 4
+BATCH_SIZE = 1
 EPOCHS = 3
 LEARNING_RATE = 2e-5
 
@@ -88,6 +88,8 @@ def train():
         num_train_epochs=EPOCHS,
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
+        gradient_accumulation_steps=4,   # 배치 1 x 4 = 실효 배치 4
+        gradient_checkpointing=True,     # 메모리 절약 핵심
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,
