@@ -62,7 +62,7 @@ with DAG(
 
     resources = k8s.V1ResourceRequirements(
         requests={"cpu": "500m", "memory": "2Gi"},
-        limits={"cpu": "2", "memory": "6Gi"},
+        limits={"cpu": "2"},  # 메모리 제한 없앰
     )
 
     extract = KubernetesPodOperator(
