@@ -93,6 +93,7 @@ with DAG(
         is_delete_operator_pod=False,
         execution_timeout=timedelta(hours=1),
         container_resources=resources,
+        image_pull_policy="Always",
     )
 
     convert = KubernetesPodOperator(
