@@ -12,7 +12,7 @@ with DAG(
     start_date=datetime(2025, 1, 1),
     schedule=None,
     catchup=False,
-    dagrun_timeout=timedelta(hours=3),
+    dagrun_timeout=timedelta(hours=6),
 ) as dag:
 
     extract = SSHOperator(
