@@ -52,6 +52,12 @@ db_env = [
 
 IMAGE = "kimeasyn/retrain-pipeline:v6"
 
+EC2_BASE = "cd /home/ubuntu/app/settleup-category-classifier && source /home/ubuntu/app/.env && source venv/bin/activate"
+
+EC2_EXTRACT = f"{EC2_BASE} && python retrain/extract_data.py"
+EC2_TRAIN = f"{EC2_BASE} && python retrain/train_model.py"
+EC2_CONVERT = f"{EC2_BASE} && python retrain/convert_onnx.py"
+
 with DAG(
     dag_id="retrain_pipeline",
     start_date=datetime(2025, 1, 1),
@@ -59,55 +65,28 @@ with DAG(
     catchup=False,
     dagrun_timeout=timedelta(hours=3),
 ) as dag:
-
-    resources = k8s.V1ResourceRequirements(
-        requests={"cpu": "500m", "memory": "2Gi"},
-        limits={"cpu": "2"},  # 메모리 제한 없앰
-    )
-
-    extract = KubernetesPodOperator(
+    extract = SSHOperator(
         task_id="extract_data",
-        name="extract-data",
-        image=IMAGE,
-        cmds=["python", "retrain/extract_data.py"],
-        env_vars=db_env,
-        volumes=[volume],
-        volume_mounts=[volume_mount],
-        namespace="airflow",
-        get_logs=True,
-        startup_timeout_seconds=600,
-        is_delete_operator_pod=False,  # 디버깅용, 나중에 True로
+        ssh_conn_id="ec2_retrain",
+        command=EC2_EXTRACT,
         execution_timeout=timedelta(hours=1),
+        cmd_timeout=None,
     )
 
-    train = KubernetesPodOperator(
+    train = SSHOperator(
         task_id="train_model",
-        name="train-model",
-        image=IMAGE,
-        cmds=["python", "retrain/train_model.py"],
-        volumes=[volume],
-        volume_mounts=[volume_mount],
-        namespace="airflow",
-        get_logs=True,
-        startup_timeout_seconds=600,
-        is_delete_operator_pod=False,
-        execution_timeout=timedelta(hours=1),
-        container_resources=resources,
-        image_pull_policy="Always",
+        ssh_conn_id="ec2_retrain",
+        command=EC2_TRAIN,
+        execution_timeout=timedelta(hours=2),
+        cmd_timeout=None,
     )
 
-    convert = KubernetesPodOperator(
+    convert = SSHOperator(
         task_id="convert_onnx",
-        name="convert-onnx",
-        image=IMAGE,
-        cmds=["python", "retrain/convert_onnx.py"],
-        volumes=[volume],
-        volume_mounts=[volume_mount],
-        namespace="airflow",
-        get_logs=True,
-        startup_timeout_seconds=600,
-        is_delete_operator_pod=False,
+        ssh_conn_id="ec2_retrain",
+        command=EC2_CONVERT,
         execution_timeout=timedelta(hours=1),
+        cmd_timeout=None,
     )
 
     extract >> train >> convert
