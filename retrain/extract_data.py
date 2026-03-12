@@ -30,6 +30,12 @@ def extract():
     rows = cur.fetchall()
     conn.close()
 
+    if len(rows) < 50:  # 50건 미만이면 스킵
+        print(f"새 데이터 {len(rows)}건 < 50건. 재학습 스킵.")
+        with open(os.path.join(OUTPUT_DIR, "result.json"), "w") as f:
+            json.dump({"skip": True, "reason": "insufficient_data", "count": len(rows)}, f)
+        sys.exit(0)
+
     # CSV 저장
     output_path = os.path.join(OUTPUT_DIR, "new_data.csv")
     with open(output_path, "w", newline="", encoding="utf-8") as f:
