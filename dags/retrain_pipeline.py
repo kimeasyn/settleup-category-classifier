@@ -3,7 +3,7 @@ from airflow.providers.ssh.operators.ssh import SSHOperator
 from airflow.providers.amazon.aws.operators.ec2 import EC2StartInstanceOperator, EC2StopInstanceOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-import os
+import os, time
 
 INSTANCE_ID = os.environ.get("EC2_INSTANCE_ID")
 REGION = os.environ.get("EC2_REGION", "ap-northeast-2")
