@@ -3,6 +3,7 @@ import psycopg2
 import csv
 import os
 import json
+import sys
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT", "5432")
@@ -15,21 +16,18 @@ OUTPUT_DIR = os.getenv("OUTPUT_DIR", "./retrain/output")
 def extract():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    conn = psycopg2.connect(
+    with psycopg2.connect(
         host=DB_HOST, port=DB_PORT,
         dbname=DB_NAME, user=DB_USER, password=DB_PASS
-    )
-
-    # description이 있는 모든 로그 추출
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT description, final_category
-        FROM prediction_logs
-        WHERE description IS NOT NULL
-          AND final_category IS NOT NULL
-    """)
-    rows = cur.fetchall()
-    conn.close()
+    ) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT description, final_category
+                FROM prediction_logs
+                WHERE description IS NOT NULL
+                  AND final_category IS NOT NULL
+            """)
+            rows = cur.fetchall()
 
     if len(rows) < 50:  # 50건 미만이면 스킵
         print(f"새 데이터 {len(rows)}건 < 50건. 재학습 스킵.")
