@@ -2,6 +2,7 @@
 import psycopg2
 import csv
 import os
+import json
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT", "5432")
