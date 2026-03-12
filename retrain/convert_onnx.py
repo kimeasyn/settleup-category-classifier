@@ -1,4 +1,4 @@
-import os, json
+import os, json, sys
 from pathlib import Path
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -14,7 +14,7 @@ def convert():
 
     if not result["adopted"]:
         print("모델 기각됨. ONNX 변환 스킵.")
-        return
+        sys.exit(0)
 
     model_dir = os.path.join(OUTPUT_DIR, "model_new")
     onnx_dir = os.path.join(OUTPUT_DIR, "model_onnx")

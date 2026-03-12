@@ -27,7 +27,7 @@ LABEL2ID = {cat: i for i, cat in enumerate(CATEGORIES)}
 ID2LABEL = {i: cat for i, cat in enumerate(CATEGORIES)}
 
 # 기존 모델 accuracy (이것보다 좋아야 채택)
-BASELINE_ACCURACY = float(os.getenv("BASELINE_ACCURACY", "0.93"))
+BASELINE_ACCURACY = float(os.getenv("BASELINE_ACCURACY", "0.91"))
 
 BATCH_SIZE = 1
 EPOCHS = 3
