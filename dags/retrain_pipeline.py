@@ -19,6 +19,33 @@ def wait_for_ec2():
     """EC2 부팅 + Tailscale 연결 대기"""
     time.sleep(60)
 
+def update_k8s_image():
+    from kubernetes import client, config
+    config.load_incluster_config()
+    apps = client.AppsV1Api()
+    
+    # category-classifier deployment의 이미지를 latest로 교체
+    body = {
+        "spec": {
+            "template": {
+                "metadata": {
+                    "annotations": {
+                        "kubectl.kubernetes.io/restartedAt": datetime.now().isoformat()
+                    }
+                },
+                "spec": {
+                    "containers": [{
+                        "name": "category-classifier",
+                        "image": "kimeasyn/category-classifier:latest",
+                        "imagePullPolicy": "Always"
+                    }]
+                }
+            }
+        }
+    }
+    apps.patch_namespaced_deployment("category-classifier", "default", body)
+    print("✅ K8s deployment 업데이트 완료")
+
 with DAG(
     dag_id="retrain_pipeline",
     start_date=datetime(2025, 1, 1),
@@ -63,6 +90,19 @@ with DAG(
         cmd_timeout=None,
     )
 
+    build_push = SSHOperator(
+        task_id="build_push_image",
+        ssh_conn_id="ec2_retrain",
+        command="cd /home/ubuntu/app/settleup-category-classifier && bash retrain/deploy.sh",
+        execution_timeout=timedelta(hours=1),
+        cmd_timeout=None,
+    )
+
+    deploy = PythonOperator(
+        task_id="deploy_to_k8s",
+        python_callable=update_k8s_image,
+    )
+
     stop_ec2 = EC2StopInstanceOperator(
         task_id="stop_ec2",
         instance_id=INSTANCE_ID,
@@ -71,6 +111,4 @@ with DAG(
         trigger_rule="all_done",
     )
 
-    start_ec2 >> wait >> extract >> train >> convert >> stop_ec2
-
-    extract >> train >> convert
+    start_ec2 >> wait >> extract >> train >> convert >> build_push >> deploy >> stop_ec2
