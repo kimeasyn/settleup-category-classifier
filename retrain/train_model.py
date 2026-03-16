@@ -4,7 +4,8 @@
 - merged_train.csv로 학습
 - 기존 모델보다 accuracy 높을 때만 저장
 """
-import os, json
+import json
+import os
 from pathlib import Path
 import pandas as pd
 import torch
@@ -29,8 +30,8 @@ ID2LABEL = {i: cat for i, cat in enumerate(CATEGORIES)}
 # 기존 모델 accuracy (이것보다 좋아야 채택)
 BASELINE_ACCURACY = float(os.getenv("BASELINE_ACCURACY", "0.91"))
 
-BATCH_SIZE = 1
-EPOCHS = 3
+BATCH_SIZE = 8
+EPOCHS = 5
 LEARNING_RATE = 2e-5
 
 def train():
@@ -88,8 +89,6 @@ def train():
         num_train_epochs=EPOCHS,
         per_device_train_batch_size=BATCH_SIZE,
         per_device_eval_batch_size=BATCH_SIZE,
-        gradient_accumulation_steps=4,   # 배치 1 x 4 = 실효 배치 4
-        gradient_checkpointing=True,     # 메모리 절약 핵심
         eval_strategy="epoch",
         save_strategy="epoch",
         load_best_model_at_end=True,

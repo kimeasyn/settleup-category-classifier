@@ -1,9 +1,12 @@
 # retrain/extract_data.py
-import psycopg2
 import csv
 import os
-import json
 import sys
+from pathlib import Path
+
+import psycopg2
+
+ROOT = Path(__file__).resolve().parent.parent
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT", "5432")
@@ -11,7 +14,7 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USERNAME")
 DB_PASS = os.getenv("DB_PASSWORD")
 
-OUTPUT_DIR = os.getenv("OUTPUT_DIR", "./retrain/output")
+OUTPUT_DIR = os.getenv("OUTPUT_DIR", str(ROOT / "retrain" / "output"))
 
 def extract():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -29,11 +32,9 @@ def extract():
             """)
             rows = cur.fetchall()
 
-    if len(rows) < 50:  # 50건 미만이면 스킵
+    if len(rows) < 50:  # 50건 미만이면 실패로 종료 → 후속 task 스킵
         print(f"새 데이터 {len(rows)}건 < 50건. 재학습 스킵.")
-        with open(os.path.join(OUTPUT_DIR, "result.json"), "w") as f:
-            json.dump({"skip": True, "reason": "insufficient_data", "count": len(rows)}, f)
-        sys.exit(0)
+        sys.exit(1)
 
     # CSV 저장
     output_path = os.path.join(OUTPUT_DIR, "new_data.csv")
