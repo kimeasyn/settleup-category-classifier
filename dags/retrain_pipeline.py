@@ -96,6 +96,7 @@ with DAG(
         command="cd /home/ubuntu/app/settleup-category-classifier && bash retrain/deploy.sh",
         execution_timeout=timedelta(hours=1),
         cmd_timeout=None,
+        template_ext=(),
     )
 
     deploy = PythonOperator(
