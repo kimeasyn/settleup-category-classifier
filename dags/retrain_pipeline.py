@@ -14,6 +14,16 @@ EC2_EXTRACT = f"{EC2_BASE} && python retrain/extract_data.py"
 EC2_TRAIN = f"{EC2_BASE} && python retrain/train_model.py"
 EC2_CONVERT = f"{EC2_BASE} && python retrain/convert_onnx.py"
 
+EC2_DEPLOY = "cd /home/ubuntu/app/settleup-category-classifier && " \
+    "ADOPTED=$(python3 -c \"import json; print(json.load(open('retrain/output/result.json'))['adopted'])\") && " \
+    "if [ \"$ADOPTED\" != \"True\" ]; then echo '모델 기각. 배포 스킵.'; exit 0; fi && " \
+    "cp -r retrain/output/model_onnx/* model_onnx/ && " \
+    "VERSION=$(date +%Y%m%d%H%M%S) && " \
+    "docker buildx build --platform linux/amd64 -f serving/Dockerfile " \
+    "-t kimeasyn/category-classifier:${VERSION} " \
+    "-t kimeasyn/category-classifier:latest --push . && " \
+    "echo \"이미지 push 완료: ${VERSION}\""
+
 
 def wait_for_ec2():
     """EC2 부팅 + Tailscale 연결 대기"""
@@ -93,7 +103,7 @@ with DAG(
     build_push = SSHOperator(
         task_id="build_push_image",
         ssh_conn_id="ec2_retrain",
-        command="cd /home/ubuntu/app/settleup-category-classifier && source retrain/deploy.sh",
+        command=EC2_DEPLOY,
         execution_timeout=timedelta(hours=1),
         cmd_timeout=None,
     )
