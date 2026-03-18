@@ -93,10 +93,9 @@ with DAG(
     build_push = SSHOperator(
         task_id="build_push_image",
         ssh_conn_id="ec2_retrain",
-        command="cd /home/ubuntu/app/settleup-category-classifier && bash retrain/deploy.sh",
+        command="cd /home/ubuntu/app/settleup-category-classifier && source retrain/deploy.sh",
         execution_timeout=timedelta(hours=1),
         cmd_timeout=None,
-        template_ext=(),
     )
 
     deploy = PythonOperator(
