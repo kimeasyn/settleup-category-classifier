@@ -17,6 +17,7 @@ EC2_CONVERT = f"{EC2_BASE} && python retrain/convert_onnx.py"
 EC2_DEPLOY = "cd /home/ubuntu/app/settleup-category-classifier && " \
     "ADOPTED=$(python3 -c \"import json; print(json.load(open('retrain/output/result.json'))['adopted'])\") && " \
     "if [ \"$ADOPTED\" != \"True\" ]; then echo '모델 기각. 배포 스킵.'; exit 0; fi && " \
+    "mkdir -p model_onnx && " \
     "cp -r retrain/output/model_onnx/* model_onnx/ && " \
     "VERSION=$(date +%Y%m%d%H%M%S) && " \
     "docker buildx build --platform linux/amd64 -f serving/Dockerfile " \
