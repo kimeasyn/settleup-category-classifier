@@ -1,6 +1,5 @@
 venv/
 model_final/
-model_onnx/
 model_output/
 retrain/output/
 .git/
